@@ -7,7 +7,7 @@ form.addEventListener('submit', async (e) => {
     showSpinner();
     const data = new FormData(form);
 
-    const response = await fetch('http://localhost:8080/dream', {
+    const response = await fetch(import.meta.VITE_API + '/dream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
