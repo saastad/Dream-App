@@ -7,22 +7,28 @@ form.addEventListener('submit', async (e) => {
     showSpinner();
     const data = new FormData(form);
 
-    const response = await fetch(import.meta.VITE_API + '/dream', {
+    const response = await fetch(import.meta.env.VITE_API + '/dream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: data.get('prompt'),
-      }),
+      body: JSON.stringify({ prompt: data.get('prompt') }),
     });
     
-
     if (response.ok) {
-      const { image } = await response.json();
-
+      const base64Data = await response.text();
+      const binaryData = atob(base64Data);
+      const bytes = new Uint8Array(binaryData.length);
+    
+      for (let i = 0; i < binaryData.length; i++) {
+        bytes[i] = binaryData.charCodeAt(i);
+      }
+    
+      const blob = new Blob([bytes], { type: 'image/webp' });
+      const blobUrl = URL.createObjectURL(blob);
+    
       const result = document.querySelector('#result');
-      result.innerHTML = `<img src="${image}" width="512" />`;
+      result.innerHTML = `<img src="${blobUrl}" width="512" />`;
     } else {
       const err = await response.text();
       alert(err);

@@ -35,12 +35,9 @@ app.post('/dream', async (req, res) => {
     
     if(response.status === 200) {
 
-		// console.log(response)q
-    //   const data = response.json()
-	console.log("---DATA")
-	console.log(response.data)
-      res.send(response.data)
-      //fs.writeFileSync("./lighthouse.webp", Buffer.from(response.data));
+      const base64Data = response.data.toString('base64');
+  console.log('API Response (base64):', base64Data);
+  res.send(base64Data);
     } else {
       throw new Error(`${response.status}: ${response.data.toString()}`);
     }
