@@ -28,16 +28,13 @@ app.post('/dream', async (req, res) => {
         responseType: "arraybuffer",
         headers: { 
           Authorization: `Bearer `+ process.env.STABILITYAI, 
-          Accept: "application/json" 
+          Accept: "image/*", 
         },
       },
     );
     
-    if(response.status === 200) {
-
-      const base64Data = response.data.toString('base64');
-  console.log('API Response (base64):', base64Data);
-  res.send(base64Data);
+    if (response.status === 200) {
+      res.status(200).json(response.data);
     } else {
       throw new Error(`${response.status}: ${response.data.toString()}`);
     }

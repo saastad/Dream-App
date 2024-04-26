@@ -7,37 +7,50 @@ form.addEventListener('submit', async (e) => {
     showSpinner();
     const data = new FormData(form);
 
-    const response = await fetch(import.meta.env.VITE_API + '/dream', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: data.get('prompt') }),
-    });
-    
-    if (response.ok) {
-      const base64Data = await response.text();
-      const binaryData = atob(base64Data);
-      const bytes = new Uint8Array(binaryData.length);
-    
-      for (let i = 0; i < binaryData.length; i++) {
-        bytes[i] = binaryData.charCodeAt(i);
-      }
-    
-      const blob = new Blob([bytes], { type: 'image/webp' });
-      const blobUrl = URL.createObjectURL(blob);
-    
-      const result = document.querySelector('#result');
-      result.innerHTML = `<img src="${blobUrl}" width="512" />`;
-    } else {
-      const err = await response.text();
-      alert(err);
-      console.error(err);
-    }
+const response = await fetch(import.meta.env.VITE_API + '/dream', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ prompt: data.get('prompt') }),
+});
+
+if (response.ok) {
+  const jsonData = await response.json()
+  const arrayBuffer = toArrayBuffer(jsonData.data)
+
+  // Step 1: Convert buffer data into Uint8Array
+  const uint8Array = new Uint8Array(arrayBuffer);
+      
+  console.log("uint8Array", uint8Array)
+
+  // Step 2: Create a Blob from the Uint8Array
+  const blob = new Blob([uint8Array], { type: 'image/webp' });
+      
+  // Step 3: Create a URL for the blob
+  const blobUrl = URL.createObjectURL(blob);
+
+  const result = document.querySelector('#result');
+  result.innerHTML = `<img src="${blobUrl}" width="512" />`;
+ } else {
+    const err = await response.text();
+    alert(err);
+    console.error(err);
+  }
 
     hideSpinner();
 
 });
+
+function toArrayBuffer(buffer) {
+  // Convert buffer to arrayBuffer
+  const arrayBuffer = new ArrayBuffer(buffer.length);
+  const view = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < buffer.length; ++i) {
+    view[i] = buffer[i];
+  }
+  return arrayBuffer;
+}
 
 function showSpinner() {
   const button = document.querySelector('button');
